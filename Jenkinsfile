@@ -37,24 +37,24 @@ pipeline {
     }
 
     stage('Package') {
-      parallel {
-        stage('Create Jarfile') {
-          steps {
-            container(name: 'maven') {
-              sh 'mvn package -DskipTests'
+        parallel {
+            'Create Jarfile': {
+                steps {
+                    container(name: 'maven') {
+                        sh 'mvn package -DskipTests'
+                    }
+                }
+            },
+            'OCIImageBnP': {
+                steps {
+                    container('kaniko') {
+                        sh '/kaniko/executor -f `pwd`/Dockerfile -c `pwd` --insecure --skip-tls-verify --cache=true --destination=docker.io/samuellabrosse/dso-demo'
+                    }
+                }
             }
-
-          }
         }
-    stage('OCIImageBnP') {
-        steps {
-            container('kaniko') {
-                sh '/kaniko/executor -f `pwd`/Dockerfile -c `pwd` --insecure --skip-tls-verify --cache=true --destination=docker.io/samuellabrosse/dso-demo'
-            }
-          }
-        }
-      }
     }
+
 
     stage('Deploy to Dev') {
       steps {
