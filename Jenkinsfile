@@ -38,14 +38,14 @@ pipeline {
 
     stage('Package') {
         parallel {
-            'Create Jarfile': {
+            stage('Create Jarfile') {
                 steps {
                     container(name: 'maven') {
                         sh 'mvn package -DskipTests'
                     }
                 }
-            },
-            'OCIImageBnP': {
+            }
+            stage('OCIImageBnP') {
                 steps {
                     container('kaniko') {
                         sh '/kaniko/executor -f `pwd`/Dockerfile -c `pwd` --insecure --skip-tls-verify --cache=true --destination=docker.io/samuellabrosse/dso-demo'
